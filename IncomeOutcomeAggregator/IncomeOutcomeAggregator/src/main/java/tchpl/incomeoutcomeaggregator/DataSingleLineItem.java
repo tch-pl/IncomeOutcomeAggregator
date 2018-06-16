@@ -20,4 +20,9 @@ public class DataSingleLineItem {
         return parsed != null && parsed.length > index ? parsed[index] : "";
     }
 
+    @Override
+    public String toString() {
+        return line;
+    }
+    
 }
