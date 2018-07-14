@@ -16,14 +16,22 @@ public class Runner {
         DataReaderFactory factory = new DataReaderFactory();
         List<DataSingleLineItem> items = new ArrayList<>();
         List<String> foodDescriptions = new ArrayList<>();
+        List<String> aptekaDescriptions = new ArrayList<>();
         List<String> petrolDescriptions = new ArrayList<>();
         Acceptor acceptor = new Acceptor(Type.DESCRIPTION, foodDescriptions, "FOOD");
         foodDescriptions.add("Gosia");
+        foodDescriptions.add("GOTUS");
+        foodDescriptions.add("LIDL");
+        foodDescriptions.add("KONKOL");
+        foodDescriptions.add("BIEDRONKA");
         Acceptor acceptor2 = new Acceptor(Type.DESCRIPTION, petrolDescriptions, "PETROL");
         petrolDescriptions.add("ORLEN");
+        Acceptor acceptorApteka = new Acceptor(Type.DESCRIPTION, aptekaDescriptions, "Apteka");
+        aptekaDescriptions.add("APTEKA");
         List<Acceptor> acceptors = new ArrayList<>();
         acceptors.add(acceptor);
         acceptors.add(acceptor2);
+        acceptors.add(acceptorApteka);
 
         for (Acceptor a : acceptors) {
             try {
