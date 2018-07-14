@@ -33,4 +33,9 @@ public class Acceptor {
         return this.name;
     }
 
+    public Type getType() {
+        return type;
+    }
+    
+
 }
