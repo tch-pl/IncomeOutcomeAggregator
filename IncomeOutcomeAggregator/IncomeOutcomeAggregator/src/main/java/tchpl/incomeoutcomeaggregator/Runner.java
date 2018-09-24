@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +16,20 @@ import java.util.logging.Logger;
 public class Runner {
 
     public static void main(String[] args) {
+        Runner runner = new Runner();
+        try {
+            runner.run(args);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void run(String[] args) throws InterruptedException, ExecutionException {
+        if (args == null || args.length == 0 || args[0] == null) {
+            throw new IllegalStateException("!!!");
+        }
         DataReaderFactory factory = new DataReaderFactory();
         List<DataSingleLineItem> items = new ArrayList<>();
         Set<DataSingleLineItem> itemsUnclassified = new HashSet<>();
