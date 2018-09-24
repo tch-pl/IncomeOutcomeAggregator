@@ -1,5 +1,7 @@
 package tchpl.incomeoutcomeaggregator;
 
+import java.util.Objects;
+
 /**
  *
  * @author tch
@@ -24,5 +26,32 @@ public class DataSingleLineItem {
     public String toString() {
         return line;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + Objects.hashCode(this.line);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DataSingleLineItem other = (DataSingleLineItem) obj;
+        if (!Objects.equals(this.line, other.line)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
     
 }

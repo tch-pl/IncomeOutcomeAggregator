@@ -26,7 +26,7 @@ public class Acceptor {
         if (itemValue == null) {
             return false;
         }
-        return matchingExpressions.stream().parallel().anyMatch(itemValue::contains);
+        return matchingExpressions.stream().parallel().anyMatch(s -> itemValue.toLowerCase().contains(s.toLowerCase()));
     }
     
     public String getName() {
