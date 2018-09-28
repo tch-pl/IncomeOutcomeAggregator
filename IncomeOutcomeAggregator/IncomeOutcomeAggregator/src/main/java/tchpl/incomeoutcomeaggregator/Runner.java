@@ -1,6 +1,7 @@
 package tchpl.incomeoutcomeaggregator;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -40,7 +41,7 @@ public class Runner {
         List<String> aptekaDescriptions = new ArrayList<>();
         List<String> petrolDescriptions = new ArrayList<>();
         Acceptor acceptor = new Acceptor(Type.DESCRIPTION, foodDescriptions, "FOOD");
-        foodDescriptions.add("Gosia");
+        foodDescriptions.add("SUPERSAM GOSIA");
         foodDescriptions.add("GOTUS");
         foodDescriptions.add("LIDL");
         foodDescriptions.add("KONKOL");
@@ -53,8 +54,8 @@ public class Runner {
         acceptors.add(acceptor);
         acceptors.add(acceptor2);
         acceptors.add(acceptorApteka);
-        runNormal(acceptors, args[0]);
-        runParallel(acceptors, args[0]);
+//        runNormal(acceptors, args[0]);
+//        runParallel(acceptors, args[0]);
         runMultiple(Arrays.asList(args[0]), acceptors);
     }
 
@@ -121,7 +122,7 @@ public class Runner {
         Date start = new Date();
         List<DataSingleLineItem> items = new ArrayList<>();
         List<CompletableFuture> tasks = new ArrayList<>();
-        
+
         for (String path : dataSourcePaths) {
             Supplier<Aggregator> sup = () -> aggregate(path);
             tasks.add(CompletableFuture.supplyAsync(sup));
@@ -139,12 +140,16 @@ public class Runner {
         for (Acceptor acceptor : acceptors) {
             totals.put(acceptor.getName(), BigDecimal.ZERO);
         }
+        DateAcceptor dateAcceptor = new DateAcceptor(Type.DATE, LocalDate.parse("2018-09-01"), LocalDate.parse("2018-09-02"), "SEPTEMBER");
         for (DataSingleLineItem single : items) {
-            for (Acceptor acceptor : acceptors) {
-                if (acceptor.accept(single)) {
-                    BigDecimal b = new BigDecimal(Double.valueOf(single.getValue(Type.AMOUNT)));
-                    BigDecimal total = totals.get(acceptor.getName()).add(b);
-                    totals.put(acceptor.getName(), total);
+            if (dateAcceptor.accept(single)) {
+                System.out.println(single);
+                for (Acceptor acceptor : acceptors) {
+                    if (acceptor.accept(single)) {
+                        BigDecimal b = new BigDecimal(Double.valueOf(single.getValue(Type.AMOUNT)));
+                        BigDecimal total = totals.get(acceptor.getName()).add(b);
+                        totals.put(acceptor.getName(), total);
+                    }
                 }
             }
         }

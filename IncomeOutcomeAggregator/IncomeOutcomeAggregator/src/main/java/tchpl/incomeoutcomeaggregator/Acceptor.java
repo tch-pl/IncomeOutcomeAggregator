@@ -1,6 +1,7 @@
 package tchpl.incomeoutcomeaggregator;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -28,7 +29,7 @@ public class Acceptor {
         }
         return matchingExpressions.stream().parallel().anyMatch(itemValue::contains);
     }
-    
+
     public String getName() {
         return this.name;
     }
@@ -36,6 +37,27 @@ public class Acceptor {
     public Type getType() {
         return type;
     }
-    
 
+    interface AcceptorStrategy {
+
+        public boolean accept(DataSingleLineItem item);
+    }
+
+    class AcceptorStrategyFactory {
+        public AcceptorStrategy get(Type type) {
+            switch (type) {
+                case AMOUNT:
+                    break;
+                case DATE:
+                    break;
+                case DESCRIPTION:
+                    break;
+            }
+            return null;
+        }        
+        
+        Supplier<AcceptorStrategy> date(DataSingleLineItem item) {
+            return null;
+        }
+    }
 }
