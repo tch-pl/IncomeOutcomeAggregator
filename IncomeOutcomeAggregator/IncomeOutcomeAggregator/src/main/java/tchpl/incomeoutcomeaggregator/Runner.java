@@ -135,15 +135,16 @@ public class Runner {
         }
         Date end = new Date();
         System.out.println(String.format("MULTI:%s", end.getTime() - start.getTime()));
-        Map<Type, BigDecimal> totals = new HashMap<>();
+        Map<String, BigDecimal> totals = new HashMap<>();
         for (Acceptor acceptor : acceptors) {
-            totals.put(acceptor.getType(), BigDecimal.ZERO);
+            totals.put(acceptor.getName(), BigDecimal.ZERO);
         }
         for (DataSingleLineItem single : items) {
             for (Acceptor acceptor : acceptors) {
                 if (acceptor.accept(single)) {
                     BigDecimal b = new BigDecimal(Double.valueOf(single.getValue(Type.AMOUNT)));
-                    totals.get(acceptor.getType()).add(b);
+                    BigDecimal total = totals.get(acceptor.getName()).add(b);
+                    totals.put(acceptor.getName(), total);
                 }
             }
         }
