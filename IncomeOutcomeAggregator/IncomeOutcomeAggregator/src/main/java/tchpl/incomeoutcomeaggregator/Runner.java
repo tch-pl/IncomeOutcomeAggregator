@@ -1,18 +1,17 @@
 package tchpl.incomeoutcomeaggregator;
 
-import com.sun.org.apache.xerces.internal.impl.dv.xs.DateTimeDV;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  *
@@ -56,6 +55,7 @@ public class Runner {
         acceptors.add(acceptorApteka);
         runNormal(acceptors, args[0]);
         runParallel(acceptors, args[0]);
+        runMultiple(Arrays.asList(args[0]), acceptors);
     }
 
     private void runNormal(List<Acceptor> acceptors, String path) {
@@ -103,5 +103,56 @@ public class Runner {
             Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
         }
         return total;
+    }
+
+    Aggregator aggregate(String dataSourcePath) {
+        DataReaderFactory factory = new DataReaderFactory();
+        List<DataSingleLineItem> items = new ArrayList<>();
+        try {
+            DataReader reader = factory.getStandardReadrer(dataSourcePath);
+            reader.getData().forEach(s -> items.add(new DataSingleLineItem(s)));
+        } catch (Exception ex) {
+            Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new Aggregator(items);
+    }
+
+    BigDecimal runMultiple(List<String> dataSourcePaths, List<Acceptor> acceptors) throws InterruptedException, ExecutionException {
+        Date start = new Date();
+        List<DataSingleLineItem> items = new ArrayList<>();
+        List<CompletableFuture> tasks = new ArrayList<>();
+        
+        for (String path : dataSourcePaths) {
+            Supplier<Aggregator> sup = () -> aggregate(path);
+            tasks.add(CompletableFuture.supplyAsync(sup));
+        }
+
+        CompletableFuture<Void> combinedFuture
+                = CompletableFuture.allOf(tasks.toArray(new CompletableFuture[tasks.size()]));
+        combinedFuture.get();
+        for (CompletableFuture<Aggregator> t : tasks) {
+            items.addAll(t.get().getItems());
+        }
+        Date end = new Date();
+        System.out.println(String.format("MULTI:%s", end.getTime() - start.getTime()));
+        Map<Type, BigDecimal> totals = new HashMap<>();
+        for (Acceptor acceptor : acceptors) {
+            totals.put(acceptor.getType(), BigDecimal.ZERO);
+        }
+        for (DataSingleLineItem single : items) {
+            for (Acceptor acceptor : acceptors) {
+                if (acceptor.accept(single)) {
+                    BigDecimal b = new BigDecimal(Double.valueOf(single.getValue(Type.AMOUNT)));
+                    totals.get(acceptor.getType()).add(b);
+                }
+            }
+        }
+
+        for (BigDecimal total : totals.values()) {
+            System.out.println(total);
+
+        }
+
+        return new Aggregator(items).aggregate();
     }
 }
